@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мульти-генератор HEX-команд</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-hover: #2980b9;
+            --success: #2ecc71;
+            --success-hover: #27ae60;
+            --secondary: #95a5a6;
+            --secondary-hover: #7f8c8d;
+            --text: #2c3e50;
+            --light-text: #7f8c8d;
+            --bg: #f5f5f5;
+            --card-bg: white;
+            --border: #ecf0f1;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .section {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        h1, h2 {
+            color: var(--text);
+            margin-top: 0;
+            text-align: center;
+        }
+        
+        h2 {
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .parser-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .parser-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        .back-btn {
+            background-color: var(--secondary);
+            margin-top: 20px;
+        }
+        
+        .back-btn:hover {
+            background-color: var(--secondary-hover);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Общие стили для всех парсеров */
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+            font-family: monospace;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        button.generate {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        button.generate:hover {
+            background-color: var(--success-hover);
+        }
+        
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+        
+        .output-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--light-text);
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .copy-btn:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        /* Стили для парсера событий */
+        .command-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-family: monospace;
+        }
+        
+        .example-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 0;
+            font-size: inherit;
+        }
+        
+        .password-examples {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .password-example {
+            background: #eaeaea;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        
+        .password-example:hover {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Главное меню -->
+        <div id="main-menu" class="section">
+            <h1>Выберите тип генератора</h1>
+            <div class="menu">
+                <button class="parser-btn" onclick="showParser('time')">Генератор HEX-команд времени дял прозрачки</button>
+                <button class="parser-btn" onclick="showParser('events')">Генератор команд для лимитов на энергомере</button>
+                <button class="parser-btn" onclick="showParser('network')">Сетевой адрес (Новгород 04)</button>
+                <button class="parser-btn" onclick="showParser('password')">Генератор парольных (HLS) команд</button>
+            </div>
+        </div>
+
+        <!-- Парсер времени -->
+        <div id="time-parser" class="section hidden">
+            <h2>Генератор HEX-команд времени д</h2>
+            
+            <div class="input-group">
+                <label for="date">Дата:</label>
+                <input type="date" id="date" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="time">Время (часы:минуты):</label>
+                <input type="time" id="time" required>
+            </div>
+            
+            <button class="generate" onclick="generateTimeCommand()">Сгенерировать команду</button>
+            
+            <div class="output">
+                <span class="output-label">Результат:</span>
+                <div id="time-result">Здесь появится сгенерированная команда...</div>
+                <button class="copy-btn" onclick="copyToClipboard('time-result')">Копировать</button>
+            </div>
+            
+            <button class="parser-btn back-btn" onclick="showMainMenu()">Назад</button>
+        </div>
+
+        <!-- Парсер событий -->
+        <div id="events-parser" class="section hidden">
+            <h2>Генератор команд событий</h2>
+            
+            <div class="input-group">
+                <h3>Примеры статических команд</h3>
+                <div id="staticCommandsList">
+                    <div class="command-item">
+                        <strong>Команда:</strong> C101C00046000060030AFF04001685<br>
+                        <strong>Описание:</strong> Перевод на 133 режим работы реле 
+                    </div>
+                    <div class="command-item">
+                        <strong>Команда:</strong> C101C000470000110000FF0B0002020202090600000A006AFF1200010202090600000A006AFF120002<br>
+                        <strong>Описание:</strong> Команда на установку реле нагрузки
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <h3>Задержка появления события (FF06)</h3>
+                <input type="number" id="secondsFF06" placeholder="Секунды (например, 15)" min="0" step="1">
+                <button class="generate" onclick="generateEventCommand('FF06')">Сгенерировать FF06</button>
+                <div class="output">
+                    <div id="outputFF06">Ожидание ввода...</div>
+                    <button class="copy-btn" onclick="copyToClipboard('outputFF06')">Копировать</button>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <h3>Задержка пропадания события (FF07)</h3>
+                <input type="number" id="secondsFF07" placeholder="Секунды (например, 1800)" min="0" step="1">
+                <button class="generate" onclick="generateEventCommand('FF07')">Сгенерировать FF07</button>
+                <div class="output">
+                    <div id="outputFF07">Ожидание ввода...</div>
+                    <button class="copy-btn" onclick="copyToClipboard('outputFF07')">Копировать</button>
+                </div>
+            </div>
+            
+            <button class="parser-btn back-btn" onclick="showMainMenu()">Назад</button>
+        </div>
+
+        <!-- Парсер сетевого адреса -->
+        <div id="network-parser" class="section hidden">
+            <h2>Сетевой адрес (Новгород 04)</h2>
+            
+            <div class="input-group">
+                <label for="inputNumber">Серийный номер ПУ:</label>
+                <input type="text" id="inputNumber" placeholder="Введите серийный номер">
+                <button class="generate" onclick="calculateNetworkAddress()">Рассчитать</button>
+                
+                <div class="output">
+                    <span class="output-label">Результат:</span>
+                    <div id="network-result">Здесь появится сгенерированная команда...</div>
+                    <button class="copy-btn" onclick="copyToClipboard('network-result')">Копировать</button>
+                </div>
+            </div>
+            
+            <button class="parser-btn back-btn" onclick="showMainMenu()">Назад</button>
+        </div>
+
+        <!-- Новый парсер парольных команд -->
+        <div id="password-parser" class="section hidden">
+            <h2>Генератор парольных команд</h2>
+            
+            <div class="input-group">
+                <label for="password-input">Пароль (16 символов):</label>
+                <input type="text" id="password-input" maxlength="16" placeholder="Введите пароль (16 символов)">
+                <div class="password-examples">
+                    <div class="password-example" onclick="setPasswordExample('2222222222222222')">Пример 1: 2222222222222222</div>
+                    <div class="password-example" onclick="setPasswordExample('1234567812345678')">Пример 2: 1234567812345678</div>
+                    <div class="password-example" onclick="setPasswordExample('0030852222222222')">Пример 3: 0030852222222222</div>
+                </div>
+                <button class="generate" onclick="generatePasswordCommand()">Сгенерировать команду</button>
+                
+                <div class="output">
+                    <span class="output-label">Результат:</span>
+                    <div id="password-result">Здесь появится сгенерированная команда...</div>
+                    <button class="copy-btn" onclick="copyToClipboard('password-result')">Копировать</button>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <h3>Примеры команд:</h3>
+                <div class="command-item">
+                    <strong>Команда:</strong> E0010020001032323232323232323232323232323232- стандартная на Меркуриях <br>
+                    <strong>Пароль:</strong> 2222222222222222
+                </div>
+                <div class="command-item">
+                    <strong>Команда:</strong> E0010020001031323334353637383132333435363738 - стандартная на Энергомере<br>
+                    <strong>Пароль:</strong> 1234567812345678
+                </div>
+                <div class="command-item">
+                    <strong>Команда:</strong> E0010020001030303330383532323232323232323232- измененный для Краснодара<br>
+                    <strong>Пароль:</strong> 0030852222222222
+                </div>
+            </div>
+            
+            <button class="parser-btn back-btn" onclick="showMainMenu()">Назад</button>
+        </div>
+    </div>
+
+    <script>
+        // Константы для парсера времени
+        const BASE_UTC_SECONDS = 65176;
+        const FIXED_PREFIX_TIME = "C101C100080000010000FF0200090C";
+
+        // Константы для парсера событий
+        const PREFIX_FF06 = "C101C000470000110000FF06000600";
+        const PREFIX_FF07 = "C101C000470000110000FF07000600";
+
+        // Константа для парсера паролей
+        const PASSWORD_PREFIX = "E00100200010";
+
+        // Показать главное меню
+        function showMainMenu() {
+            document.getElementById('main-menu').classList.remove('hidden');
+            document.getElementById('time-parser').classList.add('hidden');
+            document.getElementById('events-parser').classList.add('hidden');
+            document.getElementById('network-parser').classList.add('hidden');
+            document.getElementById('password-parser').classList.add('hidden');
+        }
+
+        // Показать выбранный парсер
+        function showParser(parserType) {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById(`${parserType}-parser`).classList.remove('hidden');
+            
+            // Инициализация значений при первом открытии
+            if (parserType === 'time') {
+                const now = new Date();
+                document.getElementById('date').valueAsDate = now;
+                document.getElementById('time').value = 
+                    `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            }
+        }
+
+        // ===== Парсер времени =====
+        function generateTimeCommand() {
+            const date = new Date(document.getElementById('date').value);
+            const time = document.getElementById('time').value.split(':');
+
+            if (!date || !time) {
+                alert("Укажите дату и время!");
+                return;
+            }
+
+            const hexParts = [
+                decToHex(date.getFullYear(), 4),
+                decToHex(date.getMonth() + 1, 2),
+                decToHex(date.getDate(), 2),
+                "FF",
+                decToHex(parseInt(time[0]), 2),
+                decToHex(parseInt(time[1]), 2),
+                "00",
+                "FF",
+                decToHex(BASE_UTC_SECONDS + 3 * 60, 4),
+                "00"
+            ];
+
+            document.getElementById('time-result').textContent = FIXED_PREFIX_TIME + hexParts.join('');
+        }
+
+        // ===== Парсер событий =====
+        function generateEventCommand(type) {
+            const inputId = `seconds${type}`;
+            const outputId = `output${type}`;
+            const seconds = parseInt(document.getElementById(inputId).value);
+            
+            if (isNaN(seconds)) {
+                alert("Введите количество секунд!");
+                return;
+            }
+
+            const hexValue = seconds.toString(16).padStart(8, '0').toUpperCase();
+            const command = (type === "FF06" ? PREFIX_FF06 : PREFIX_FF07) + hexValue;
+            document.getElementById(outputId).textContent = command;
+        }
+
+        // ===== Парсер сетевого адреса =====
+        function calculateNetworkAddress() {
+            const input = document.getElementById('inputNumber').value.trim();
+            if (!input) {
+                alert('Введите серийный номер!');
+                return;
+            }
+
+            // Расчёт B1 (скрыто)
+            const last3 = input.slice(-3);
+            const numLast3 = parseInt(last3, 10);
+            let b1;
+            if (numLast3 > 124) {
+                b1 = input.slice(-2);
+            } else if (numLast3 > 99) {
+                b1 = last3;
+            } else {
+                b1 = input.slice(-2);
+            }
+
+            // Расчёт C1 (скрыто)
+            const numB1 = parseInt(b1, 10);
+            let c1;
+            if (numB1 < 7) {
+                c1 = numB1 + 20;
+            } else if (numB1 < 17) {
+                c1 = numB1 + 10;
+            } else {
+                c1 = numB1;
+            }
+
+            // Расчёт D1 (отображается)
+            let d1;
+            if (c1 < 100) {
+                d1 = `000E023${String(c1).charAt(0)}3${String(c1).slice(-1)}`;
+            } else {
+                d1 = `000E033${String(c1).charAt(0)}3${String(c1).charAt(1)}3${String(c1).slice(-1)}`;
+            }
+
+            document.getElementById('network-result').textContent = d1;
+        }
+
+        // ===== Парсер парольных команд =====
+        function setPasswordExample(password) {
+            document.getElementById('password-input').value = password;
+        }
+
+        function generatePasswordCommand() {
+            const password = document.getElementById('password-input').value.trim();
+            
+            if (password.length !== 16) {
+                alert("Пароль должен содержать ровно 16 символов!");
+                return;
+            }
+
+            // Преобразуем каждый символ пароля в HEX
+            let hexPassword = '';
+            for (let i = 0; i < password.length; i++) {
+                const charCode = password.charCodeAt(i);
+                hexPassword += charCode.toString(16).padStart(2, '0');
+            }
+
+            const command = PASSWORD_PREFIX + hexPassword.toUpperCase();
+            document.getElementById('password-result').textContent = command;
+        }
+
+        // Общие функции
+        function decToHex(number, length) {
+            return number.toString(16).toUpperCase().padStart(length, '0');
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text)
+                .then(() => alert("Скопировано!"))
+                .catch(err => console.error("Ошибка копирования: ", err));
+        }
+
+        // Инициализация
+        window.onload = showMainMenu;
+    </script>
+</body>
+</html>
