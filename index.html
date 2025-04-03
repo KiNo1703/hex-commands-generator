@@ -17,8 +17,25 @@
             --bg: #f5f5f5;
             --card-bg: white;
             --border: #ecf0f1;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
+        /* Тёмная тема */
+        .dark-mode {
+            --primary: #1e88e5;
+            --primary-hover: #1565c0;
+            --success: #26a69a;
+            --success-hover: #00897b;
+            --secondary: #546e7a;
+            --secondary-hover: #455a64;
+            --text: #eceff1;
+            --light-text: #b0bec5;
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --border: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
@@ -27,39 +44,50 @@
             background-color: var(--bg);
             color: var(--text);
             line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        
+
         .container {
             display: flex;
             flex-direction: column;
             gap: 25px;
         }
-        
+
         .section {
             background: var(--card-bg);
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow);
             padding: 20px;
             box-sizing: border-box;
+            transition: all 0.3s ease;
+            transform: translateY(0);
+            opacity: 1;
         }
-        
+
+        .section.hidden {
+            display: none;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
         h1, h2 {
             color: var(--text);
             margin-top: 0;
             text-align: center;
+            transition: color 0.3s ease;
         }
-        
+
         h2 {
             padding-bottom: 10px;
             border-bottom: 2px solid var(--border);
         }
-        
+
         .menu {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
-        
+
         .parser-btn {
             background-color: var(--primary);
             color: white;
@@ -68,56 +96,62 @@
             font-size: 18px;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             text-align: center;
         }
-        
+
         .parser-btn:hover {
             background-color: var(--primary-hover);
             transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
-        
+
         .back-btn {
             background-color: var(--secondary);
             margin-top: 20px;
         }
-        
+
         .back-btn:hover {
             background-color: var(--secondary-hover);
         }
-        
-        .hidden {
-            display: none;
-        }
-        
+
         /* Общие стили для всех парсеров */
         .input-group {
             margin-bottom: 20px;
+            animation: fadeIn 0.5s ease;
         }
-        
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: var(--text);
         }
-        
+
         input, textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #bdc3c7;
+            border: 2px solid var(--border);
             border-radius: 6px;
             font-size: 16px;
             box-sizing: border-box;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
             font-family: monospace;
+            background-color: var(--card-bg);
+            color: var(--text);
         }
-        
+
         input:focus, textarea:focus {
             border-color: var(--primary);
             outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         }
-        
+
         button.generate {
             background-color: var(--success);
             color: white;
@@ -128,31 +162,44 @@
             cursor: pointer;
             width: 100%;
             font-weight: 600;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
         }
-        
+
         button.generate:hover {
             background-color: var(--success-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .output {
             margin-top: 20px;
             padding: 15px;
-            background-color: #f8f9fa;
+            background-color: var(--card-bg);
             border-radius: 6px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             word-break: break-all;
             font-family: 'Courier New', monospace;
             position: relative;
+            transition: all 0.3s ease;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
         }
-        
+
+        .output.visible {
+            max-height: 500px;
+            opacity: 1;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
         .output-label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: var(--light-text);
         }
-        
+
         .copy-btn {
             position: absolute;
             top: 10px;
@@ -164,68 +211,107 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
+            transition: all 0.2s ease;
         }
-        
+
         .copy-btn:hover {
             background-color: var(--primary-hover);
+            transform: scale(1.05);
         }
-        
+
         /* Стили для парсера событий */
         .command-item {
             margin-bottom: 15px;
             padding: 15px;
-            background: #f8f9fa;
+            background: var(--card-bg);
             border-radius: 6px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             font-family: monospace;
+            transition: all 0.3s ease;
         }
-        
-        .example-btn {
-            background: none;
+
+        .command-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Переключатель темы */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
             border: none;
-            color: var(--primary);
-            text-decoration: underline;
             cursor: pointer;
-            padding: 0;
-            font-size: inherit;
-        }
-        
-        .password-examples {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 100;
         }
-        
-        .password-example {
-            background: #eaeaea;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-family: monospace;
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(30deg);
+            background-color: var(--primary-hover);
         }
-        
-        .password-example:hover {
-            background: #ddd;
+
+        /* Анимации */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 600px) {
+            .container {
+                gap: 15px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            .parser-btn {
+                padding: 12px;
+                font-size: 16px;
+            }
+            
+            input, textarea {
+                padding: 10px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+
     <div class="container">
         <!-- Главное меню -->
         <div id="main-menu" class="section">
             <h1>Выберите тип генератора</h1>
             <div class="menu">
-                <button class="parser-btn" onclick="showParser('time')">Генератор HEX-команд времени для прозрачки</button>
-                <button class="parser-btn" onclick="showParser('events')">Генератор команд для лимитов на энергомере</button>
+                <button class="parser-btn" onclick="showParser('time')">Генератор HEX-команд времени</button>
+                <button class="parser-btn" onclick="showParser('events')">Генератор команд событий</button>
                 <button class="parser-btn" onclick="showParser('network')">Сетевой адрес (Новгород 04)</button>
-                <button class="parser-btn" onclick="showParser('password')">Генератор парольных (HLS) команд</button>
+                <button class="parser-btn" onclick="showParser('password')">Генератор парольных команд</button>
             </div>
         </div>
 
         <!-- Парсер времени -->
         <div id="time-parser" class="section hidden">
-            <h2>Генератор HEX-команд времени для отправки по прозрачке</h2>
+            <h2>Генератор HEX-команд времени</h2>
             
             <div class="input-group">
                 <label for="date">Дата:</label>
@@ -239,7 +325,7 @@
             
             <button class="generate" onclick="generateTimeCommand()">Сгенерировать команду</button>
             
-            <div class="output">
+            <div class="output" id="time-output">
                 <span class="output-label">Результат:</span>
                 <div id="time-result">Здесь появится сгенерированная команда...</div>
                 <button class="copy-btn" onclick="copyToClipboard('time-result')">Копировать</button>
@@ -270,7 +356,7 @@
                 <h3>Задержка появления события (FF06)</h3>
                 <input type="number" id="secondsFF06" placeholder="Секунды (например, 15)" min="0" step="1">
                 <button class="generate" onclick="generateEventCommand('FF06')">Сгенерировать FF06</button>
-                <div class="output">
+                <div class="output" id="output-ff06">
                     <div id="outputFF06">Ожидание ввода...</div>
                     <button class="copy-btn" onclick="copyToClipboard('outputFF06')">Копировать</button>
                 </div>
@@ -280,7 +366,7 @@
                 <h3>Задержка пропадания события (FF07)</h3>
                 <input type="number" id="secondsFF07" placeholder="Секунды (например, 1800)" min="0" step="1">
                 <button class="generate" onclick="generateEventCommand('FF07')">Сгенерировать FF07</button>
-                <div class="output">
+                <div class="output" id="output-ff07">
                     <div id="outputFF07">Ожидание ввода...</div>
                     <button class="copy-btn" onclick="copyToClipboard('outputFF07')">Копировать</button>
                 </div>
@@ -298,7 +384,7 @@
                 <input type="text" id="inputNumber" placeholder="Введите серийный номер">
                 <button class="generate" onclick="calculateNetworkAddress()">Рассчитать</button>
                 
-                <div class="output">
+                <div class="output" id="network-output">
                     <span class="output-label">Результат:</span>
                     <div id="network-result">Здесь появится сгенерированная команда...</div>
                     <button class="copy-btn" onclick="copyToClipboard('network-result')">Копировать</button>
@@ -308,7 +394,7 @@
             <button class="parser-btn back-btn" onclick="showMainMenu()">Назад</button>
         </div>
 
-        <!-- Новый парсер парольных команд -->
+        <!-- Парсер парольных команд -->
         <div id="password-parser" class="section hidden">
             <h2>Генератор парольных команд</h2>
             
@@ -316,13 +402,13 @@
                 <label for="password-input">Пароль (16 символов):</label>
                 <input type="text" id="password-input" maxlength="16" placeholder="Введите пароль (16 символов)">
                 <div class="password-examples">
-                    <div class="password-example" onclick="setPasswordExample('2222222222222222')">Пример 1: 2222222222222222</div>
-                    <div class="password-example" onclick="setPasswordExample('1234567812345678')">Пример 2: 1234567812345678</div>
-                    <div class="password-example" onclick="setPasswordExample('0030852222222222')">Пример 3: 0030852222222222</div>
+                    <button class="example-btn" onclick="setPasswordExample('2222222222222222')">Пример 1: 2222222222222222</button>
+                    <button class="example-btn" onclick="setPasswordExample('1234567812345678')">Пример 2: 1234567812345678</button>
+                    <button class="example-btn" onclick="setPasswordExample('0030852222222222')">Пример 3: 0030852222222222</button>
                 </div>
                 <button class="generate" onclick="generatePasswordCommand()">Сгенерировать команду</button>
                 
-                <div class="output">
+                <div class="output" id="password-output">
                     <span class="output-label">Результат:</span>
                     <div id="password-result">Здесь появится сгенерированная команда...</div>
                     <button class="copy-btn" onclick="copyToClipboard('password-result')">Копировать</button>
@@ -332,15 +418,15 @@
             <div class="input-group">
                 <h3>Примеры команд:</h3>
                 <div class="command-item">
-                    <strong>Команда:</strong> E0010020001032323232323232323232323232323232- стандартная на Меркуриях <br>
+                    <strong>Команда:</strong> E0010020001032323232323232323232323232323232<br>
                     <strong>Пароль:</strong> 2222222222222222
                 </div>
                 <div class="command-item">
-                    <strong>Команда:</strong> E0010020001031323334353637383132333435363738 - стандартная на Энергомере<br>
+                    <strong>Команда:</strong> E0010020001031323334353637383132333435363738<br>
                     <strong>Пароль:</strong> 1234567812345678
                 </div>
                 <div class="command-item">
-                    <strong>Команда:</strong> E0010020001030303330383532323232323232323232- измененный для Краснодара<br>
+                    <strong>Команда:</strong> E0010020001030303330383532323232323232323232<br>
                     <strong>Пароль:</strong> 0030852222222222
                 </div>
             </div>
@@ -363,17 +449,33 @@
 
         // Показать главное меню
         function showMainMenu() {
+            hideAllSections();
             document.getElementById('main-menu').classList.remove('hidden');
-            document.getElementById('time-parser').classList.add('hidden');
-            document.getElementById('events-parser').classList.add('hidden');
-            document.getElementById('network-parser').classList.add('hidden');
-            document.getElementById('password-parser').classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('main-menu').style.opacity = '1';
+                document.getElementById('main-menu').style.transform = 'translateY(0)';
+            }, 10);
+        }
+
+        // Скрыть все секции
+        function hideAllSections() {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+            });
         }
 
         // Показать выбранный парсер
         function showParser(parserType) {
-            document.getElementById('main-menu').classList.add('hidden');
-            document.getElementById(`${parserType}-parser`).classList.remove('hidden');
+            hideAllSections();
+            const section = document.getElementById(`${parserType}-parser`);
+            section.classList.remove('hidden');
+            
+            setTimeout(() => {
+                section.style.opacity = '1';
+                section.style.transform = 'translateY(0)';
+            }, 10);
             
             // Инициализация значений при первом открытии
             if (parserType === 'time') {
@@ -390,7 +492,7 @@
             const time = document.getElementById('time').value.split(':');
 
             if (!date || !time) {
-                alert("Укажите дату и время!");
+                showAlert("Укажите дату и время!", 'error');
                 return;
             }
 
@@ -407,30 +509,36 @@
                 "00"
             ];
 
-            document.getElementById('time-result').textContent = FIXED_PREFIX_TIME + hexParts.join('');
+            const result = FIXED_PREFIX_TIME + hexParts.join('');
+            document.getElementById('time-result').textContent = result;
+            showOutput('time-output');
+            showAlert("Команда успешно сгенерирована!", 'success');
         }
 
         // ===== Парсер событий =====
         function generateEventCommand(type) {
             const inputId = `seconds${type}`;
             const outputId = `output${type}`;
+            const outputContainer = `output-${type.toLowerCase()}`;
             const seconds = parseInt(document.getElementById(inputId).value);
             
             if (isNaN(seconds)) {
-                alert("Введите количество секунд!");
+                showAlert("Введите количество секунд!", 'error');
                 return;
             }
 
             const hexValue = seconds.toString(16).padStart(8, '0').toUpperCase();
             const command = (type === "FF06" ? PREFIX_FF06 : PREFIX_FF07) + hexValue;
             document.getElementById(outputId).textContent = command;
+            showOutput(outputContainer);
+            showAlert(`Команда ${type} сгенерирована!`, 'success');
         }
 
         // ===== Парсер сетевого адреса =====
         function calculateNetworkAddress() {
             const input = document.getElementById('inputNumber').value.trim();
             if (!input) {
-                alert('Введите серийный номер!');
+                showAlert('Введите серийный номер!', 'error');
                 return;
             }
 
@@ -466,18 +574,22 @@
             }
 
             document.getElementById('network-result').textContent = d1;
+            showOutput('network-output');
+            showAlert("Сетевой адрес рассчитан!", 'success');
         }
 
         // ===== Парсер парольных команд =====
         function setPasswordExample(password) {
             document.getElementById('password-input').value = password;
+            document.getElementById('password-input').focus();
+            showAlert(`Пример пароля "${password}" загружен`, 'info');
         }
 
         function generatePasswordCommand() {
             const password = document.getElementById('password-input').value.trim();
             
             if (password.length !== 16) {
-                alert("Пароль должен содержать ровно 16 символов!");
+                showAlert("Пароль должен содержать ровно 16 символов!", 'error');
                 return;
             }
 
@@ -490,6 +602,94 @@
 
             const command = PASSWORD_PREFIX + hexPassword.toUpperCase();
             document.getElementById('password-result').textContent = command;
+            showOutput('password-output');
+            showAlert("Команда с паролем сгенерирована!", 'success');
+        }
+
+        // ===== Тёмная тема =====
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const themeToggle = document.querySelector('.theme-toggle');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                themeToggle.textContent = '☀️';
+                themeToggle.classList.add('pulse');
+            } else {
+                localStorage.setItem('theme', 'light');
+                themeToggle.textContent = '🌓';
+                themeToggle.classList.remove('pulse');
+            }
+        }
+
+        // Проверяем сохранённую тему при загрузке
+        function checkSavedTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.theme-toggle').textContent = '☀️';
+            }
+        }
+
+        // ===== Анимации =====
+        function showOutput(id) {
+            const output = document.getElementById(id);
+            output.classList.add('visible');
+            
+            // Плавное появление
+            setTimeout(() => {
+                output.style.opacity = '1';
+                output.style.maxHeight = '500px';
+            }, 10);
+        }
+
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            // Стили для алертов
+            const style = document.createElement('style');
+            style.textContent = `
+                .alert {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px;
+                    border-radius: 5px;
+                    color: white;
+                    z-index: 1000;
+                    transform: translateX(200%);
+                    transition: transform 0.3s ease;
+                }
+                .alert-success {
+                    background-color: var(--success);
+                }
+                .alert-error {
+                    background-color: #e74c3c;
+                }
+                .alert-info {
+                    background-color: var(--primary);
+                }
+                .alert.show {
+                    transform: translateX(0);
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+                setTimeout(() => {
+                    alert.remove();
+                    style.remove();
+                }, 300);
+            }, 3000);
         }
 
         // Общие функции
@@ -500,12 +700,21 @@
         function copyToClipboard(elementId) {
             const text = document.getElementById(elementId).textContent;
             navigator.clipboard.writeText(text)
-                .then(() => alert("Скопировано!"))
-                .catch(err => console.error("Ошибка копирования: ", err));
+                .then(() => showAlert("Скопировано в буфер обмена!", 'success'))
+                .catch(err => showAlert("Ошибка копирования: " + err, 'error'));
         }
 
         // Инициализация
-        window.onload = showMainMenu;
+        window.onload = function() {
+            showMainMenu();
+            checkSavedTheme();
+            
+            // Установка текущей даты/времени для парсера времени
+            const now = new Date();
+            document.getElementById('date').valueAsDate = now;
+            document.getElementById('time').value = 
+                `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        };
     </script>
 </body>
 </html>
