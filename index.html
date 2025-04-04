@@ -311,7 +311,7 @@
 
         <!-- Парсер времени -->
         <div id="time-parser" class="section hidden">
-            <h2>Генератор HEX-команд времени</h2>
+            <h2>Генератор HEX-команд времени на 4 порт</h2>
             
             <div class="input-group">
                 <label for="date">Дата:</label>
@@ -375,7 +375,7 @@
             <button class="parser-btn back-btn" onclick="showMainMenu()">Назад</button>
         </div>
 
-        <!-- Парсер сетевого адреса -->
+        <!-- Парсер сетевого адреса на 201 порт -->
         <div id="network-parser" class="section hidden">
             <h2>Сетевой адрес (Новгород 04)</h2>
             
@@ -396,7 +396,7 @@
 
         <!-- Парсер парольных команд -->
         <div id="password-parser" class="section hidden">
-            <h2>Генератор парольных команд</h2>
+            <h2>Генератор парольных команд на 201 порт</h2>
             
             <div class="input-group">
                 <label for="password-input">Пароль (16 символов):</label>
@@ -418,15 +418,15 @@
             <div class="input-group">
                 <h3>Примеры команд:</h3>
                 <div class="command-item">
-                    <strong>Команда:</strong> E0010020001032323232323232323232323232323232<br>
+                    <strong>Команда:</strong> E0010020001032323232323232323232323232323232 - стандартная для Меркуриев<br>
                     <strong>Пароль:</strong> 2222222222222222
                 </div>
                 <div class="command-item">
-                    <strong>Команда:</strong> E0010020001031323334353637383132333435363738<br>
+                    <strong>Команда:</strong> E0010020001031323334353637383132333435363738 - станадартная для Энергомер<br>
                     <strong>Пароль:</strong> 1234567812345678
                 </div>
                 <div class="command-item">
-                    <strong>Команда:</strong> E0010020001030303330383532323232323232323232<br>
+                    <strong>Команда:</strong> E0010020001030303330383532323232323232323232- измененный пароль для Краснодара<br>
                     <strong>Пароль:</strong> 0030852222222222
                 </div>
             </div>
