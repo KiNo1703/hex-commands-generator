@@ -70,16 +70,16 @@
             opacity: 0;
         }
 
-        h1, h2 {
+        h1, h2, h3 {
             color: var(--text);
             margin-top: 0;
-            text-align: center;
             transition: color 0.3s ease;
         }
 
         h2 {
             padding-bottom: 10px;
             border-bottom: 2px solid var(--border);
+            text-align: center;
         }
 
         .menu {
@@ -133,7 +133,7 @@
             color: var(--text);
         }
 
-        input, textarea {
+        input, textarea, select {
             width: 100%;
             padding: 12px;
             border: 2px solid var(--border);
@@ -146,7 +146,7 @@
             color: var(--text);
         }
 
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             border-color: var(--primary);
             outline: none;
             box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
@@ -219,20 +219,58 @@
             transform: scale(1.05);
         }
 
-        /* Стили для парсера событий */
-        .command-item {
+        /* Стили для парсера двух дат */
+        .input-row {
+            display: flex;
+            gap: 20px;
             margin-bottom: 15px;
-            padding: 15px;
-            background: var(--card-bg);
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            font-family: monospace;
-            transition: all 0.3s ease;
         }
 
-        .command-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .input-row .input-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .mask-settings {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--card-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .mask-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .mask-option input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .mask-option label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--card-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .explanation ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .explanation li {
+            margin-bottom: 5px;
         }
 
         /* Переключатель темы */
@@ -287,9 +325,14 @@
                 font-size: 16px;
             }
             
-            input, textarea {
+            input, textarea, select {
                 padding: 10px;
                 font-size: 14px;
+            }
+            
+            .input-row {
+                flex-direction: column;
+                gap: 15px;
             }
         }
     </style>
@@ -306,6 +349,7 @@
                 <button class="parser-btn" onclick="showParser('events')">Генератор команд событий</button>
                 <button class="parser-btn" onclick="showParser('network')">Сетевой адрес (Новгород 04)</button>
                 <button class="parser-btn" onclick="showParser('password')">Генератор парольных команд</button>
+                <button class="parser-btn" onclick="showParser('two-dates')">Генератор для суточных на не СПОДЭС</button>
             </div>
         </div>
 
@@ -433,6 +477,79 @@
             
             <button class="parser-btn back-btn" onclick="showMainMenu()">Назад</button>
         </div>
+
+        <!-- Парсер двух дат -->
+        <div id="two-dates-parser" class="section hidden">
+            <h2>Генератор HEX-команд суточных на не СПОДЭС</h2>
+            
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="dateFrom">Дата начала:</label>
+                    <input type="date" id="dateFrom" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="dateTo">Дата окончания:</label>
+                    <input type="date" id="dateTo" required>
+                </div>
+            </div>
+            
+            <div class="mask-settings">
+                <h3>Настройки маски параметров</h3>
+                <div class="mask-option">
+                    <input type="checkbox" id="rMinus">
+                    <label for="rMinus">R-</label>
+                </div>
+                <div class="mask-option">
+                    <input type="checkbox" id="rPlus">
+                    <label for="rPlus">R+</label>
+                </div>
+                <div class="mask-option">
+                    <input type="checkbox" id="aMinus">
+                    <label for="aMinus">A-</label>
+                </div>
+                <div class="mask-option">
+                    <input type="checkbox" id="aPlus" checked>
+                    <label for="aPlus">A+</label>
+                </div>
+                <div class="mask-option">
+                    <input type="checkbox" id="t3">
+                    <label for="t3">T3</label>
+                </div>
+                <div class="mask-option">
+                    <input type="checkbox" id="t2" checked>
+                    <label for="t2">T2</label>
+                </div>
+                <div class="mask-option">
+                    <input type="checkbox" id="t1" checked>
+                    <label for="t1">T1</label>
+                </div>
+                <div class="mask-option">
+                    <input type="checkbox" id="t0" checked>
+                    <label for="t0">T0</label>
+                </div>
+            </div>
+            
+            <button class="generate" onclick="generateTwoDatesCommand()">Сгенерировать команду</button>
+            
+            <div class="output" id="two-dates-output">
+                <span class="output-label">Результат:</span>
+                <div id="two-dates-result">Здесь появится сгенерированная команда...</div>
+                <button class="copy-btn" onclick="copyToClipboard('two-dates-result')">Копировать</button>
+            </div>
+            
+            <div class="explanation">
+                <h3>Как работает кодировка:</h3>
+                <p>Формат команды: <strong>57[маска][год+день1][год+месяц1][год+день2][год+месяц2]</strong></p>
+                <ul>
+                    <li>Год кодируется 7 битами (последние 2 цифры года)</li>
+                    <li>Для дней берутся 3 старших бита года + 5 бит дня</li>
+                    <li>Для месяцев берутся 4 старших бита года + 4 бита месяца</li>
+                </ul>
+            </div>
+            
+            <button class="parser-btn back-btn" onclick="showMainMenu()">Назад</button>
+        </div>
     </div>
 
     <script>
@@ -483,6 +600,19 @@
                 document.getElementById('date').valueAsDate = now;
                 document.getElementById('time').value = 
                     `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            } else if (parserType === 'two-dates') {
+                const now = new Date();
+                document.getElementById('dateFrom').valueAsDate = now;
+                
+                const nextMonth = new Date();
+                nextMonth.setMonth(nextMonth.getMonth() + 1);
+                document.getElementById('dateTo').valueAsDate = nextMonth;
+                
+                // Установка чекбоксов по умолчанию
+                document.getElementById('aPlus').checked = true;
+                document.getElementById('t2').checked = true;
+                document.getElementById('t1').checked = true;
+                document.getElementById('t0').checked = true;
             }
         }
 
@@ -606,6 +736,87 @@
             showAlert("Команда с паролем сгенерирована!", 'success');
         }
 
+        // ===== Парсер двух дат =====
+        function generateTwoDatesCommand() {
+            try {
+                // Получаем даты
+                const dateFrom = new Date(document.getElementById('dateFrom').value);
+                const dateTo = new Date(document.getElementById('dateTo').value);
+                
+                if (!dateFrom || !dateTo) {
+                    showAlert("Пожалуйста, укажите обе даты!", 'error');
+                    return;
+                }
+                
+                if (dateFrom > dateTo) {
+                    showAlert("Дата начала должна быть раньше даты окончания!", 'error');
+                    return;
+                }
+
+                // 1. Код запроса (фиксированный)
+                const code = "57";
+                
+                // 2. Маска параметров
+                const maskBinary = [
+                    document.getElementById('rMinus').checked ? '1' : '0',
+                    document.getElementById('rPlus').checked ? '1' : '0',
+                    document.getElementById('aMinus').checked ? '1' : '0',
+                    document.getElementById('aPlus').checked ? '1' : '0',
+                    document.getElementById('t3').checked ? '1' : '0',
+                    document.getElementById('t2').checked ? '1' : '0',
+                    document.getElementById('t1').checked ? '1' : '0',
+                    document.getElementById('t0').checked ? '1' : '0'
+                ].join('');
+                
+                const maskHex = binaryToHex(maskBinary);
+                
+                // 3. Кодирование даты начала (dateFrom)
+                const fromDay = dateFrom.getDate();
+                const fromMonth = dateFrom.getMonth() + 1;
+                const fromYear = dateFrom.getFullYear() % 100;
+                
+                const fromYearDayHex = encodeDatePart(fromYear, fromDay, 'day');
+                const fromYearMonthHex = encodeDatePart(fromYear, fromMonth, 'month');
+                
+                // 4. Кодирование даты окончания (dateTo)
+                const toDay = dateTo.getDate();
+                const toMonth = dateTo.getMonth() + 1;
+                const toYear = dateTo.getFullYear() % 100;
+                
+                const toYearDayHex = encodeDatePart(toYear, toDay, 'day');
+                const toYearMonthHex = encodeDatePart(toYear, toMonth, 'month');
+                
+                // Собираем итоговую команду
+                const command = code + maskHex + fromYearDayHex + fromYearMonthHex + toYearDayHex + toYearMonthHex;
+                
+                document.getElementById('two-dates-result').textContent = command;
+                showOutput('two-dates-output');
+                showAlert("Команда успешно сгенерирована!", 'success');
+            } catch (error) {
+                console.error("Ошибка генерации команды:", error);
+                showAlert("Произошла ошибка при генерации команды. Проверьте введенные данные.", 'error');
+            }
+        }
+        
+        // Функция кодирования частей даты
+        function encodeDatePart(year, value, type) {
+            const yearBinary = decToBin(year, 7);
+            
+            if (type === 'day') {
+                // Для дней: 3 бита года + 5 бит дня
+                const dayBinary = decToBin(value, 5);
+                const combined = yearBinary.substring(0, 3) + dayBinary;
+                return binaryToHex(combined);
+            } else if (type === 'month') {
+                // Для месяцев: 4 бита года + 4 бита месяца
+                const monthBinary = decToBin(value, 4);
+                const combined = yearBinary.substring(0, 4) + monthBinary;
+                return binaryToHex(combined);
+            }
+            
+            return "00";
+        }
+
         // ===== Тёмная тема =====
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
@@ -695,6 +906,15 @@
         // Общие функции
         function decToHex(number, length) {
             return number.toString(16).toUpperCase().padStart(length, '0');
+        }
+
+        function decToBin(number, length) {
+            return parseInt(number).toString(2).padStart(length, '0');
+        }
+        
+        function binaryToHex(binaryString) {
+            const decimal = parseInt(binaryString, 2);
+            return decimal.toString(16).padStart(2, '0').toUpperCase();
         }
 
         function copyToClipboard(elementId) {
