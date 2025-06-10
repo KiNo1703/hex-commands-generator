@@ -335,6 +335,43 @@
                 gap: 15px;
             }
         }
+
+        /* Стили для генератора 200 порта */
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fffde7;
+            border-radius: 6px;
+            border-left: 4px solid #ffd600;
+            font-size: 14px;
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .instructions code {
+            background-color: rgba(0,0,0,0.1);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .dark-mode .instructions {
+            background-color: #333;
+            border-left-color: #ffd600;
+        }
+
+        .dark-mode .instructions h3,
+        .dark-mode .instructions p {
+            color: #fff;
+        }
+
+        .dark-mode .instructions code {
+            background-color: rgba(255,255,255,0.1);
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -350,6 +387,7 @@
                 <button class="parser-btn" onclick="showParser('network')">Сетевой адрес (Новгород 04)</button>
                 <button class="parser-btn" onclick="showParser('password')">Генератор парольных команд</button>
                 <button class="parser-btn" onclick="showParser('two-dates')">Генератор для суточных на не СПОДЭС</button>
+                <button class="parser-btn" onclick="showParser('port200')">Генератор команд для 200 порта</button>
             </div>
         </div>
 
@@ -550,6 +588,32 @@
             
             <button class="parser-btn back-btn" onclick="showMainMenu()">Назад</button>
         </div>
+
+        <!-- Генератор команд для 200 порта -->
+        <div id="port200-parser" class="section hidden">
+            <h2>Генератор команд для 200 порта</h2>
+            
+            <div class="instructions">
+                <h3>Формат команды:</h3>
+                <p><code>0200[32 байта данных]0000ffff</code></p>
+                <p>Пример для пульта <code>000ADBFE</code>:<br>
+                <code>0200FEDB0A00FEDB0A00FEDB0A00FEDB0A00FEDB0A00FEDB0A00FEDB0A00FEDB0A000000ffff</code></p>
+            </div>
+            
+            <div class="input-group">
+                <label for="pultId">ID пульта (8 символов HEX):</label>
+                <input type="text" id="pultId" placeholder="000ADBFE" maxlength="8">
+                <button class="generate" onclick="generatePort200Command()">Сгенерировать команду</button>
+                
+                <div class="output" id="port200-output">
+                    <span class="output-label">Результат:</span>
+                    <div id="port200-result">Здесь появится сгенерированная команда...</div>
+                    <button class="copy-btn" onclick="copyToClipboard('port200-result')">Копировать</button>
+                </div>
+            </div>
+            
+            <button class="parser-btn back-btn" onclick="showMainMenu()">Назад</button>
+        </div>
     </div>
 
     <script>
@@ -573,13 +637,6 @@
                 document.getElementById('main-menu').style.transform = 'translateY(0)';
             }, 10);
         }
-		// Функция для форматирования даты в формат YYYY-MM-DD
-function formatDateForInput(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
 
         // Скрыть все секции
         function hideAllSections() {
@@ -590,37 +647,45 @@ function formatDateForInput(date) {
             });
         }
 
-       // Показать выбранный парсер
-function showParser(parserType) {
-    hideAllSections();
-    const section = document.getElementById(`${parserType}-parser`);
-    section.classList.remove('hidden');
-    
-    setTimeout(() => {
-        section.style.opacity = '1';
-        section.style.transform = 'translateY(0)';
-    }, 10);
-    
-    // Инициализация значений при первом открытии
-    if (parserType === 'time') {
-        const now = new Date();
-        document.getElementById('date').valueAsDate = now;
-        document.getElementById('time').value = 
-            `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    } else if (parserType === 'two-dates') {
-        const today = new Date();
-        const todayFormatted = formatDateForInput(today);
-        
-        document.getElementById('dateFrom').value = todayFormatted;
-        document.getElementById('dateTo').value = todayFormatted;
-        
-        // Установка чекбоксов по умолчанию
-        document.getElementById('aPlus').checked = true;
-        document.getElementById('t2').checked = true;
-        document.getElementById('t1').checked = true;
-        document.getElementById('t0').checked = true;
-    }
-}
+        // Показать выбранный парсер
+        function showParser(parserType) {
+            hideAllSections();
+            const section = document.getElementById(`${parserType}-parser`);
+            section.classList.remove('hidden');
+            
+            setTimeout(() => {
+                section.style.opacity = '1';
+                section.style.transform = 'translateY(0)';
+            }, 10);
+            
+            // Инициализация значений при первом открытии
+            if (parserType === 'time') {
+                const now = new Date();
+                document.getElementById('date').valueAsDate = now;
+                document.getElementById('time').value = 
+                    `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            } else if (parserType === 'two-dates') {
+                const today = new Date();
+                const todayFormatted = formatDateForInput(today);
+                
+                document.getElementById('dateFrom').value = todayFormatted;
+                document.getElementById('dateTo').value = todayFormatted;
+                
+                // Установка чекбоксов по умолчанию
+                document.getElementById('aPlus').checked = true;
+                document.getElementById('t2').checked = true;
+                document.getElementById('t1').checked = true;
+                document.getElementById('t0').checked = true;
+            }
+        }
+
+        // Функция для форматирования даты в формат YYYY-MM-DD
+        function formatDateForInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
         // ===== Парсер времени =====
         function generateTimeCommand() {
@@ -823,124 +888,91 @@ function showParser(parserType) {
             return "00";
         }
 
-        // ===== Тёмная тема =====
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const themeToggle = document.querySelector('.theme-toggle');
-            
-            if (document.body.classList.contains('dark-mode')) {
-                localStorage.setItem('theme', 'dark');
-                themeToggle.textContent = '☀️';
-                themeToggle.classList.add('pulse');
-            } else {
-                localStorage.setItem('theme', 'light');
-                themeToggle.textContent = '🌓';
-                themeToggle.classList.remove('pulse');
-            }
-        }
-
-        // Проверяем сохранённую тему при загрузке
-        function checkSavedTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                document.querySelector('.theme-toggle').textContent = '☀️';
-            }
-        }
-
-        // ===== Анимации =====
-        function showOutput(id) {
-            const output = document.getElementById(id);
-            output.classList.add('visible');
-            
-            // Плавное появление
-            setTimeout(() => {
-                output.style.opacity = '1';
-                output.style.maxHeight = '500px';
-            }, 10);
-        }
-
-        function showAlert(message, type) {
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type}`;
-            alert.textContent = message;
-            
-            // Стили для алертов
-            const style = document.createElement('style');
-            style.textContent = `
-                .alert {
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    padding: 15px;
-                    border-radius: 5px;
-                    color: white;
-                    z-index: 1000;
-                    transform: translateX(200%);
-                    transition: transform 0.3s ease;
-                }
-                .alert-success {
-                    background-color: var(--success);
-                }
-                .alert-error {
-                    background-color: #e74c3c;
-                }
-                .alert-info {
-                    background-color: var(--primary);
-                }
-                .alert.show {
-                    transform: translateX(0);
-                }
-            `;
-            document.head.appendChild(style);
-            
-            document.body.appendChild(alert);
-            
-            setTimeout(() => {
-                alert.classList.add('show');
-            }, 10);
-            
-            setTimeout(() => {
-                alert.classList.remove('show');
-                setTimeout(() => {
-                    alert.remove();
-                    style.remove();
-                }, 300);
-            }, 3000);
-        }
-
-        // Общие функции
-        function decToHex(number, length) {
-            return number.toString(16).toUpperCase().padStart(length, '0');
-        }
-
-        function decToBin(number, length) {
-            return parseInt(number).toString(2).padStart(length, '0');
+           // ===== Генератор команд для 200 порта =====
+    function generatePort200Command() {
+        const pultId = document.getElementById('pultId').value.trim().toUpperCase();
+        
+        if (!/^[0-9A-F]{8}$/.test(pultId)) {
+            showAlert('Введите корректный ID пульта (8 HEX символов)', 'error');
+            return;
         }
         
-        function binaryToHex(binaryString) {
-            const decimal = parseInt(binaryString, 2);
-            return decimal.toString(16).padStart(2, '0').toUpperCase();
-        }
+        // Реверсируем байты (little-endian)
+        const reversed = reverseHexBytes(pultId);
+        
+        // Создаем 32 байта данных (8 повторений reversed)
+        const dataPart = reversed.repeat(8);
+        
+        const fullCommand = `0200${dataPart}0000ffff`;
+        document.getElementById('port200-result').textContent = fullCommand;
+        showOutput('port200-output');
+        showAlert("Команда для 200 порта сгенерирована!", 'success');
+    }
+    
+    function reverseHexBytes(hex) {
+        // Разбиваем на байты и реверсируем порядок
+        const bytes = hex.match(/.{2}/g);
+        return bytes.reverse().join('');
+    }
 
-        function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).textContent;
-            navigator.clipboard.writeText(text)
-                .then(() => showAlert("Скопировано в буфер обмена!", 'success'))
-                .catch(err => showAlert("Ошибка копирования: " + err, 'error'));
-        }
-
-        // Инициализация
-        window.onload = function() {
-            showMainMenu();
-            checkSavedTheme();
-            
-            // Установка текущей даты/времени для парсера времени
-            const now = new Date();
-            document.getElementById('date').valueAsDate = now;
-            document.getElementById('time').value = 
-                `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-        };
-    </script>
+    // ===== Вспомогательные функции =====
+    function decToHex(number, length) {
+        return number.toString(16).toUpperCase().padStart(length, '0');
+    }
+    
+    function decToBin(number, length) {
+        return number.toString(2).padStart(length, '0');
+    }
+    
+    function binaryToHex(binary) {
+        return parseInt(binary, 2).toString(16).toUpperCase().padStart(2, '0');
+    }
+    
+    function showOutput(id) {
+        const output = document.getElementById(id);
+        output.classList.add('visible');
+        setTimeout(() => {
+            output.style.maxHeight = '500px';
+            output.style.opacity = '1';
+        }, 10);
+    }
+    
+    function copyToClipboard(elementId) {
+        const text = document.getElementById(elementId).textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            showAlert("Текст скопирован в буфер обмена!", 'success');
+        }).catch(err => {
+            console.error('Ошибка копирования: ', err);
+            showAlert("Не удалось скопировать текст", 'error');
+        });
+    }
+    
+    function showAlert(message, type) {
+        // Можно добавить красивые уведомления, но пока просто console.log
+        console.log(`[${type}] ${message}`);
+    }
+    
+    // Переключение темы
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const themeToggle = document.querySelector('.theme-toggle');
+        themeToggle.classList.add('pulse');
+        setTimeout(() => themeToggle.classList.remove('pulse'), 1500);
+        
+        // Сохраняем предпочтение темы
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDark);
+    }
+    
+    // Проверяем сохранённую тему при загрузке
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+    
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', () => {
+        showMainMenu();
+    });
+</script>
 </body>
 </html>
